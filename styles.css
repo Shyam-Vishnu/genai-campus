@@ -5,7 +5,6 @@
   --grad: radial-gradient(1200px 600px at 10% -10%, rgba(122,162,247,.25), transparent 60%),
           radial-gradient(800px 400px at 110% -20%, rgba(158,206,106,.20), transparent 60%);
 }
-/* Theme upgrades unlocked by progress */
 .theme-bronze   { --accent:#c08a5b; --accent-2:#ffd29d; }
 .theme-silver   { --accent:#bfc7d5; --accent-2:#e6f0ff; }
 .theme-gold     { --accent:#ffd166; --accent-2:#ffe9a3; }
