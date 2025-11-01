@@ -1,5 +1,7 @@
-/* GenAI Campus app logic (with Certificate at 100%) */
-const $ = (q)=>document.querySelector(q);
+/* GenAI Campus v2.4 — Thumbnail videos + certificate */
+console.log('%cGenAI Campus v2.4','background:#0f1422;color:#7aa2f7;padding:4px 8px;border:1px solid #2a3868;border-radius:6px');
+
+const $  = (q)=>document.querySelector(q);
 const $$ = (q)=>Array.from(document.querySelectorAll(q));
 
 const store = {
@@ -9,40 +11,27 @@ const store = {
 };
 
 const state = {
-  course: window.GENAI_COURSE,
-  projects: window.GENAI_PROJECTS,
-  progress: 0,
-  level: 0,
-  mastery: {},
-  badges: [],
-  streak: 0,
-  name: "",
-  theme: "starter",
-  certificate: null
+  course:  window.GENAI_COURSE || [],
+  projects:window.GENAI_PROJECTS || [],
+  progress:0, level:0, mastery:{}, badges:[], streak:0,
+  name:"", theme:"starter", certificate:null
 };
 
+document.addEventListener('DOMContentLoaded', init);
 function init(){
   Object.assign(state, store.get());
-  bindTabs();
-  renderStats();
-  renderLessonList();
-  renderProjects();
-  bindHome();
-  bindProfile();
-  bindPlayground();
-  applyTheme();
-  ensureCertificateUI();
-  updateCertificateCTA();
+  bindTabs(); renderStats(); renderLessonList(); renderProjects();
+  bindHome(); bindProfile(); bindPlayground(); applyTheme();
+  ensureCertificateUI(); updateCertificateCTA();
 }
-document.addEventListener('DOMContentLoaded', init);
 
-// Tabs
+/* Tabs */
 function bindTabs(){
-  const map={ "tab-home":"view-home","tab-learn":"view-learn","tab-practice":"view-practice","tab-projects":"view-projects","tab-profile":"view-profile"};
+  const map={ "tab-home":"view-home","tab-learn":"view-learn","tab-practice":"view-practice","tab-projects":"view-projects","tab-profile":"view-profile" };
   Object.entries(map).forEach(([btnId,viewId])=>{
     document.getElementById(btnId).addEventListener('click', ()=>{
       $$('.tab').forEach(t=>t.classList.remove('active'));
-      Object.values(map).forEach(id => document.getElementById(id).classList.remove('active'));
+      $$('.view').forEach(v=>v.classList.remove('active'));
       document.getElementById(btnId).classList.add('active');
       document.getElementById(viewId).classList.add('active');
     });
@@ -51,11 +40,11 @@ function bindTabs(){
 function navigateTo(view){
   $$('.tab').forEach(t=>t.classList.remove('active'));
   $$('.view').forEach(v=>v.classList.remove('active'));
-  $(`#tab-${view}`).classList.add('active');
-  $(`#view-${view}`).classList.add('active');
+  $(`#tab-${view}`).classList.add('active'); $(`#view-${view}`).classList.add('active');
 }
 
-// Home
+/* Home */
+function bindHome(){ $('#cta-start').addEventListener('click', ()=> navigateTo('learn')); }
 function renderStats(){
   const total = state.course.length;
   const completed = Object.values(state.mastery).filter(m=>m&&m.done).length;
@@ -63,33 +52,41 @@ function renderStats(){
   $('#stat-lessons').textContent = String(total);
   $('#stat-progress').textContent = state.progress + '%';
   $('#stat-streak').textContent = state.streak || 0;
-  const node = $('#achievements'); node.innerHTML='';
-  (state.badges||[]).forEach(b=>{ const s=document.createElement('span'); s.className='badge'; s.textContent=b; node.appendChild(s); });
-  $('#footer-level').textContent = 'Level ' + getLevel().level;
-  store.set(state);
-  updateCertificateCTA();
-}
-function bindHome(){
-  $('#cta-start').addEventListener('click', ()=> navigateTo('learn'));
+  const node=$('#achievements'); node.innerHTML=''; (state.badges||[]).forEach(b=>{const s=document.createElement('span'); s.className='badge'; s.textContent=b; node.appendChild(s);});
+  $('#footer-level').textContent='Level '+getLevel().level; store.set(state); updateCertificateCTA();
 }
 
-// Lessons
+/* Lessons */
 function renderLessonList(){
-  const list = $('#lesson-list'); list.innerHTML='';
+  const list=$('#lesson-list'); list.innerHTML='';
   state.course.forEach(lesson=>{
-    const item = document.createElement('div');
-    item.className='lesson-item';
-    item.innerHTML = `<div class="title">${lesson.title}</div><div class="pill">${lesson.time}</div>`;
+    const item=document.createElement('div'); item.className='lesson-item';
+    item.innerHTML=`<div class="title">${lesson.title}</div><div class="pill">${lesson.time}</div>`;
     item.addEventListener('click', ()=> openLesson(lesson.id));
     list.appendChild(item);
   });
 }
+function asVideoArray(v){ if(!v) return []; if(Array.isArray(v)) return v; if(typeof v==='object') return [v]; return []; }
+function extractYouTubeId(url){
+  if(!url) return null; const m=url.match(/[?&]v=([^&]+)/)||url.match(/youtu\.be\/([^?]+)/)||url.match(/embed\/([^?]+)/); return m?m[1]:null;
+}
 function openLesson(id){
   const lesson = state.course.find(l=>l.id===id);
   const pane = $('#lesson-content'); pane.innerHTML = lesson.content;
-  const cp = $('#checkpoint'); cp.innerHTML='';
-  lesson.questions.forEach((q,i)=> cp.appendChild(renderQuestion(q,id,i)));
-  cp.classList.remove('hidden');
+  const videos = asVideoArray(lesson.video);
+  if(videos.length){
+    const wrap=document.createElement('div'); wrap.style.display='grid'; wrap.style.gap='10px';
+    videos.slice(0,2).forEach(v=>{
+      const vid=extractYouTubeId(v.url); if(!vid) return;
+      const start=Number(v.start||0);
+      const a=document.createElement('a'); a.className='yt-thumb'; a.target='_blank'; a.rel='noopener';
+      a.href=`https://www.youtube.com/watch?v=${vid}&t=${start}s`;
+      a.innerHTML = `<img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" alt="Video thumbnail"><span>▶ Watch on YouTube</span>`;
+      wrap.appendChild(a);
+    });
+    pane.prepend(wrap);
+  }
+  const cp=$('#checkpoint'); cp.innerHTML=''; lesson.questions.forEach((q,i)=> cp.appendChild(renderQuestion(q,id,i))); cp.classList.remove('hidden');
 }
 function renderQuestion(q, lessonId, idx){
   const wrap=document.createElement('div'); wrap.className='q';
@@ -99,7 +96,7 @@ function renderQuestion(q, lessonId, idx){
     q.options.forEach((opt,i)=>{
       const btn=document.createElement('button'); btn.textContent=opt; btn.style.marginRight='8px';
       btn.addEventListener('click', ()=>{
-        const correct = (i===q.answerIndex);
+        const correct=(i===q.answerIndex);
         btn.style.borderColor = correct? 'var(--accent-2)': '#6b1c2a';
         btn.style.boxShadow = correct? 'var(--ring)': 'none';
         if(correct){ incrementScore(lessonId,1); toast('Correct! '+(q.explain||'')); maybeCompleteLesson(lessonId); }
@@ -107,10 +104,12 @@ function renderQuestion(q, lessonId, idx){
       });
       wrap.appendChild(btn);
     });
-    if(q.explain){ const small=document.createElement('div'); small.className='small'; small.textContent='Tip: '+q.explain; wrap.appendChild(small); }
+    if(q.explain){ const tip=document.createElement('div'); tip.className='small'; tip.textContent='Tip: '+q.explain; wrap.appendChild(tip); }
   }else if(q.type==='text'){
     const p=document.createElement('p'); p.textContent=q.prompt; wrap.appendChild(p);
-    const input=document.createElement('input'); input.placeholder='Type your answer…'; input.style.width='100%'; input.style.padding='10px'; input.style.borderRadius='10px'; input.style.border='1px solid #29314c'; wrap.appendChild(input);
+    const input=document.createElement('input'); input.placeholder='Type your answer…';
+    Object.assign(input.style,{width:'100%',padding:'10px',borderRadius:'10px',border:'1px solid #29314c'});
+    wrap.appendChild(input);
     const submit=document.createElement('button'); submit.textContent='Submit'; submit.style.marginTop='8px'; wrap.appendChild(submit);
     submit.addEventListener('click', ()=>{
       const val=(input.value||'').toLowerCase();
@@ -121,56 +120,50 @@ function renderQuestion(q, lessonId, idx){
   }
   return wrap;
 }
-function incrementScore(lessonId, delta){
-  const m = state.mastery[lessonId] || {done:false, score:0};
-  m.score = Math.min(3,(m.score||0)+delta);
-  state.mastery[lessonId]=m; store.set(state);
-}
-function maybeCompleteLesson(lessonId){
-  const m = state.mastery[lessonId];
-  if(m.score>=2 && !m.done){
-    m.done=true; state.streak=(state.streak||0)+1; toast('Lesson complete!'); gainThemeProgress();
-  }
-  renderStats(); applyTheme();
-}
+function incrementScore(lessonId, delta){ const m=state.mastery[lessonId]||{done:false,score:0}; m.score=Math.min(3,(m.score||0)+delta); state.mastery[lessonId]=m; store.set(state); }
+function maybeCompleteLesson(lessonId){ const m=state.mastery[lessonId]; if(m.score>=2 && !m.done){ m.done=true; state.streak=(state.streak||0)+1; toast('Lesson complete!'); gainThemeProgress(); } renderStats(); applyTheme(); }
 
-// Theme
-function getLevel(){ const p=state.progress||0; let t='starter', level=0; if(p>=10){t='bronze';level=1} if(p>=40){t='silver';level=2} if(p>=70){t='gold';level=3} if(p>=100){t='platinum';level=4} return {theme:t,level}; }
+/* Theme */
+function getLevel(){ const p=state.progress||0; let t='starter',level=0; if(p>=10){t='bronze';level=1} if(p>=40){t='silver';level=2} if(p>=70){t='gold';level=3} if(p>=100){t='platinum';level=4} return {theme:t,level}; }
+function rank(n){ return {starter:0,bronze:1,silver:2,gold:3,platinum:4}[n]??0; }
 function applyTheme(){
   const {theme}=getLevel();
   document.body.classList.remove('theme-bronze','theme-silver','theme-gold','theme-platinum');
   if(theme!=='starter') document.body.classList.add('theme-'+theme);
   const select=$('#profile-theme');
-  if(select){ const desired=state.theme||'starter'; const unlocked=getLevel().theme; const finalTheme=rank(desired)<=rank(unlocked)?desired:unlocked; state.theme=finalTheme; document.body.classList.remove('theme-'+desired); if(finalTheme!=='starter') document.body.classList.add('theme-'+finalTheme); select.value=finalTheme; }
+  if(select){
+    const desired=state.theme||'starter'; const unlocked=getLevel().theme;
+    const finalTheme=rank(desired)<=rank(unlocked)?desired:unlocked;
+    state.theme=finalTheme; document.body.classList.remove('theme-'+desired);
+    if(finalTheme!=='starter') document.body.classList.add('theme-'+finalTheme);
+    select.value=finalTheme;
+  }
 }
-function rank(n){ return {starter:0,bronze:1,silver:2,gold:3,platinum:4}[n]??0; }
 function gainThemeProgress(){ document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.2)'},{filter:'brightness(1)'}],{duration:600}); }
 
-// Playground
+/* Playground */
 function bindPlayground(){
   $('#btn-evaluate').addEventListener('click', ()=>{
-    const t=$('#prompt-input').value||'';
-    const score=evaluatePrompt(t);
+    const t=$('#prompt-input').value||''; const score=evaluatePrompt(t);
     const feedback=[`Score: ${score}/10`,...(score<7?['- Add constraints (length, tone, format).','- Include examples (few-shot).','- Specify audience & success criteria.']:['Great structure! Consider adding edge-case tests.'])].join('\n');
-    $('#prompt-feedback').textContent=feedback;
-    if(score>=8) awardBadge('Prompt Crafter');
+    $('#prompt-feedback').textContent=feedback; if(score>=8) awardBadge('Prompt Crafter');
   });
 }
 function evaluatePrompt(t){ let s=0; const low=t.toLowerCase(); if(low.includes('you are')||low.includes('act as')) s++; if(/output|json|schema|markdown/.test(low)) s++; if(/limit|words|bullets|tone|style|audience|format/.test(low)) s++; if(/example|few-shot|demonstration|e\.g\./.test(low)) s+=2; if(/steps|checklist|plan|chain/.test(low)) s++; if(/tests|criteria|acceptance|evaluation/.test(low)) s++; if(t.length>140) s++; if(/avoid|do not|must/.test(low)) s++; if(/context|background/.test(low)) s++; return Math.min(10,s); }
 
-// Projects
+/* Projects & Badges */
 function renderProjects(){
   const wrap=$('#projects'); wrap.innerHTML='';
   state.projects.forEach(p=>{
     const card=document.createElement('div'); card.className='project-card';
-    card.innerHTML = `<h3>${p.title}</h3><p>${p.description}</p><div class="actions"><button data-id="${p.id}" class="btn-done">Mark Complete</button><span class="small">Reward: ${p.reward}</span></div>`;
+    card.innerHTML=`<h3>${p.title}</h3><p>${p.description}</p><div class="actions"><button data-id="${p.id}" class="btn-done">Mark Complete</button><span class="small">Reward: ${p.reward}</span></div>`;
     card.querySelector('.btn-done').addEventListener('click', ()=> awardBadge(p.reward));
     wrap.appendChild(card);
   });
 }
 function awardBadge(name){ if(!(state.badges||[]).includes(name)){ state.badges=[...(state.badges||[]),name]; toast('Badge earned: '+name); renderStats(); applyTheme(); } }
 
-// Profile
+/* Profile */
 function bindProfile(){
   const name=$('#profile-name'); name.value=state.name||''; name.addEventListener('change', ()=>{ state.name=name.value; store.set(state); updateCertificateCTA(); });
   const theme=$('#profile-theme'); theme.value=state.theme||'starter'; theme.addEventListener('change', ()=>{ const desired=theme.value; const unlocked=getLevel().theme; if(rank(desired)<=rank(unlocked)){ state.theme=desired; applyTheme(); store.set(state);} else { toast('That theme unlocks later!'); theme.value=state.theme; } });
@@ -180,7 +173,7 @@ function bindProfile(){
   $('#btn-reset').addEventListener('click', ()=>{ if(confirm('Reset all progress?')){ store.clear(); location.reload(); } });
 }
 
-// Certificate
+/* Certificate */
 function updateCertificateCTA(){
   const home=$('#achievements'); if(!home) return;
   const old1=document.getElementById('btn-claim-cert'); const old2=document.getElementById('btn-view-cert'); if(old1) old1.remove(); if(old2) old2.remove();
@@ -192,10 +185,7 @@ function updateCertificateCTA(){
     }
   }
 }
-function createCertificateRecord(name){
-  const now=new Date(); const y=now.getFullYear(); const m=String(now.getMonth()+1).padStart(2,'0'); const d=String(now.getDate()).padStart(2,'0'); const rand=Math.floor(1000+Math.random()*9000); const number=`GAC-${y}${m}${d}-${rand}`;
-  return { number, dateISO: now.toISOString(), name };
-}
+function createCertificateRecord(name){ const now=new Date(); const y=now.getFullYear(); const m=String(now.getMonth()+1).padStart(2,'0'); const d=String(now.getDate()).padStart(2,'0'); const rand=Math.floor(1000+Math.random()*9000); const number=`GAC-${y}${m}${d}-${rand}`; return { number, dateISO: now.toISOString(), name }; }
 function ensureCertificateUI(){
   if(document.getElementById('certificate-modal')) return;
   const modal=document.createElement('div'); modal.id='certificate-modal'; Object.assign(modal.style,{position:'fixed',inset:'0',display:'none',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,0.6)',zIndex:50});
@@ -229,6 +219,6 @@ function drawCertificate(){
 }
 function drawSeal(ctx,cx,cy){ ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,110,0,Math.PI*2); ctx.fillStyle='#ffd166'; ctx.fill(); ctx.lineWidth=6; ctx.strokeStyle='#c98a22'; ctx.stroke(); ctx.beginPath(); ctx.arc(cx,cy,85,0,Math.PI*2); ctx.fillStyle='#0f3b6f'; ctx.fill(); ctx.fillStyle='#fff'; ctx.font='bold 24px sans-serif'; ctx.textAlign='center'; ctx.fillText('GENAI',cx,cy-10); ctx.font='18px sans-serif'; ctx.fillText('CAMPUS',cx,cy+20); ctx.restore(); }
 
-// Utils
+/* Utils */
 function toast(msg){ const t=document.createElement('div'); t.textContent=msg; Object.assign(t.style,{position:'fixed',bottom:'18px',left:'50%',transform:'translateX(-50%)',background:'#121a33',color:'#fff',padding:'10px 14px',border:'1px solid #2a3868',borderRadius:'10px',zIndex:60}); document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
 window.addEventListener('storage', ()=> applyTheme());
