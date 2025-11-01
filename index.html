@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GenAI Campus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>🧠 GenAI Campus</h1>
+    <nav>
+      <button id="tab-home" class="tab active">Home</button>
+      <button id="tab-learn" class="tab">Learn</button>
+      <button id="tab-practice" class="tab">Practice</button>
+      <button id="tab-projects" class="tab">Projects</button>
+      <button id="tab-profile" class="tab">Profile</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <h2>Master Generative AI from zero → pro</h2>
+        <p>Short lessons, interactive checks, and unlockable UI upgrades as you learn. Finish the course to reveal the “Platinum” theme.</p>
+        <button id="cta-start" class="cta">Start Learning</button>
+      </div>
+      <div class="stats-grid">
+        <div class="card">
+          <div class="num" id="stat-lessons">0</div>
+          <div class="label">Lessons</div>
+        </div>
+        <div class="card">
+          <div class="num" id="stat-progress">0%</div>
+          <div class="label">Progress</div>
+        </div>
+        <div class="card">
+          <div class="num" id="stat-streak">0</div>
+          <div class="label">Streak</div>
+        </div>
+      </div>
+      <div class="achievements" id="achievements">
+        <!-- badges injected here -->
+      </div>
+    </section>
+
+    <!-- LEARN -->
+    <section id="view-learn" class="view">
+      <aside class="lesson-list" id="lesson-list"></aside>
+      <article class="lesson-pane">
+        <div id="lesson-content" class="lesson-content">
+          <h3>Select a lesson</h3>
+          <p>Pick any topic from the left to begin.</p>
+        </div>
+        <div id="checkpoint" class="checkpoint hidden">
+          <!-- dynamic questions -->
+        </div>
+      </article>
+    </section>
+
+    <!-- PRACTICE -->
+    <section id="view-practice" class="view">
+      <h2>Playground</h2>
+      <p>
+        Try prompt engineering ideas in a safe sandbox. This is a <b>simulator</b> that evaluates structure & clarity of your prompts – it doesn’t call an external model.
+      </p>
+      <div class="playground">
+        <textarea id="prompt-input" placeholder="Write a clear, constrained prompt…"></textarea>
+        <button id="btn-evaluate">Evaluate Prompt</button>
+        <div id="prompt-feedback" class="prompt-feedback"></div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="view-projects" class="view">
+      <h2>Capstone Projects</h2>
+      <p>Complete any project to earn a badge and boost your site theme.</p>
+      <div class="projects" id="projects"></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="view-profile" class="view">
+      <h2>Your Profile</h2>
+      <div class="profile-grid">
+        <div>
+          <label>Name</label>
+          <input id="profile-name" placeholder="Your name" />
+        </div>
+        <div>
+          <label>Theme</label>
+          <select id="profile-theme">
+            <option value="starter">Starter</option>
+            <option value="bronze">Bronze (10%+)</option>
+            <option value="silver">Silver (40%+)</option>
+            <option value="gold">Gold (70%+)</option>
+            <option value="platinum">Platinum (100%)</option>
+          </select>
+        </div>
+        <div class="btns">
+          <button id="btn-export">Export Progress</button>
+          <input type="file" id="file-import" accept="application/json" class="hidden" />
+          <button id="btn-import">Import Progress</button>
+          <button id="btn-reset" class="danger">Reset</button>
+        </div>
+      </div>
+      <p class="small">Themes above unlock automatically as your mastery increases. Choosing a locked theme will be ignored.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>© GenAI Campus</span>
+    <span id="footer-level">Level 0</span>
+  </footer>
+
+  <script src="lessons.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

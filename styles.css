@@ -1,0 +1,71 @@
+:root{
+  --bg:#0b0e14; --card:#111623; --text:#eaeef8; --muted:#b7c0d8; --accent:#7aa2f7; --accent-2:#9ece6a;
+  --ring: 0 0 0 2px rgba(122,162,247,.35), 0 10px 25px rgba(0,0,0,.35);
+  --radius:14px;
+  --grad: radial-gradient(1200px 600px at 10% -10%, rgba(122,162,247,.25), transparent 60%),
+          radial-gradient(800px 400px at 110% -20%, rgba(158,206,106,.20), transparent 60%);
+}
+/* Theme upgrades unlocked by progress */
+.theme-bronze   { --accent:#c08a5b; --accent-2:#ffd29d; }
+.theme-silver   { --accent:#bfc7d5; --accent-2:#e6f0ff; }
+.theme-gold     { --accent:#ffd166; --accent-2:#ffe9a3; }
+.theme-platinum { --accent:#c4f1ff; --accent-2:#e3fff8; --bg:#070a10; --card:#0d1220; }
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto; background:var(--bg); color:var(--text);
+  background-image:var(--grad);
+}
+.site-header{
+  display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid #1b2233;
+  position:sticky;top:0;background:linear-gradient(180deg, rgba(11,14,20,0.9), rgba(11,14,20,0.6));backdrop-filter: blur(8px);z-index:5;
+}
+h1{margin:0;font-size:22px}
+nav .tab{background:#0f1422;color:var(--text);border:1px solid #1f2740;padding:8px 12px;margin-left:8px;border-radius:10px;cursor:pointer}
+nav .tab.active{border-color:var(--accent); box-shadow: var(--ring)}
+
+main{max-width:1200px;margin:24px auto;padding:0 16px}
+.view{display:none}
+.view.active{display:block}
+
+.hero{padding:32px;border:1px solid #1f2740;border-radius:var(--radius);background:linear-gradient(145deg,#0f1422,#0b0e14)}
+.cta{padding:12px 18px;border-radius:12px;border:1px solid #2a3868;background:linear-gradient(180deg,#1a2443,#121a33);color:var(--text);cursor:pointer;box-shadow:var(--ring)}
+.cta:hover{transform:translateY(-1px)}
+
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:18px}
+.card{border:1px solid #1f2740;border-radius:var(--radius);padding:18px;background:linear-gradient(180deg,#0f1422,#0b0e14)}
+.card .num{font-size:28px;font-weight:800}
+.card .label{color:var(--muted)}
+
+.achievements{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.badge{border:1px dashed #334; padding:8px 12px;border-radius:999px;color:var(--muted)}
+
+#view-learn{display:grid;grid-template-columns:300px 1fr;gap:16px}
+.lesson-list{border:1px solid #1f2740;border-radius:var(--radius);padding:10px;background:linear-gradient(180deg,#0f1422,#0b0e14);max-height:70vh;overflow:auto}
+.lesson-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.lesson-item:hover{border-color:#273050}
+.lesson-item .title{font-weight:600}
+.lesson-item .pill{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #2a3868;color:var(--muted)}
+
+.lesson-pane{border:1px solid #1f2740;border-radius:var(--radius);padding:18px;background:linear-gradient(180deg,#0f1422,#0b0e14)}
+.lesson-content h3{margin-top:0}
+.checkpoint{margin-top:16px;border-top:1px solid #1f2740;padding-top:12px}
+.hidden{display:none !important}
+
+.playground{display:grid;gap:10px}
+textarea{width:100%;min-height:140px;border-radius:12px;border:1px solid #29314c;background:#0f1422;color:var(--text);padding:12px}
+button{font-weight:600}
+.prompt-feedback{white-space:pre-wrap;border:1px dashed #334; padding:12px;border-radius:12px;color:var(--muted)}
+
+.projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.project-card{border:1px solid #1f2740;border-radius:var(--radius);padding:14px;background:linear-gradient(180deg,#0f1422,#0b0e14)}
+.project-card .actions{display:flex;gap:8px;margin-top:10px}
+
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.profile-grid input, .profile-grid select{width:100%;padding:10px;border-radius:10px;border:1px solid #29314c;background:#0f1422;color:var(--text)}
+.profile-grid .btns{display:flex;gap:8px;flex-wrap:wrap}
+.danger{border-color:#6b1c2a;background:linear-gradient(180deg,#311018,#1a0a0f)}
+
+footer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 18px;border-top:1px solid #1b2233;color:#93a0be}
+.small{color:#93a0be;font-size:12px}
